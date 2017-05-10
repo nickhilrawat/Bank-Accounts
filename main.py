@@ -1,7 +1,7 @@
 
 """
-Created on Sun May 07 14:25:16 2017
-@author: Nickhil,Tanya,Nikhil,Trilok
+Created on Thu May 11 02:25:16 2017
+@author: Nickhil
 """
 
 import cx_Oracle
@@ -12,6 +12,16 @@ import SignIn,SignUp,subMenu
 
 def admin_sign_in():
     print("Admin Login")
+    user=raw_input("Enter Username : ")
+    pas=raw_input("Password : ")
+    entry=user+"/"+pas+"@localhost/xe"
+    con=cx_Oracle.connect(entry)
+    cur=con.cursor()
+    query="select * from closed"
+    cur.execute(query)
+    print tabulate(cur.fetchall())
+    con.commit()
+    con.close()
 
 #elif num==4:
 def sign_out():
