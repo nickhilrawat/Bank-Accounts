@@ -20,7 +20,7 @@ def sign_up():
     cur.execute("INSERT into detail VALUES(:1,:2,:3,:4,:5)",(accountNumber,name,address,money,'open'))
     accountNumber=str(accountNumber)
     accountNumber="b_"+accountNumber
-    query="create table "+ accountNumber + " (time date,transact_type varchar2(15),amount int,balance int)"
+    query="create table "+ accountNumber + " (time varchar2(10),transact_type varchar2(15),amount int,balance int)"
     cur.execute(query)
     con.commit()
     con.close()
