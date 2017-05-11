@@ -1,5 +1,6 @@
 desc valid
 create table valid(ID number primary key,password varchar2(20))
 desc detail
-create table detail(accountnumber number primary key,name varchar2(20),address varchar2(30),money number,accnt_status varchar2(7));
-create table closed(accountnumber number primary key,name varchar2(20),address varchar2(30),money number,accnt_status varchar2(7));
+create table closed(accountnumber number primary key,type varchar2(8),fname varchar2(20),lname varchar2(20),add1 varchar2(20),add2 varchar2(20),city varchar2(20),state varchar2(20),pincode number(6),money number,accnt_status varchar2(7));
+
+create table closed(accountnumber number primary key,type varchar2(8),fname varchar2(20),lname varchar2(20),add1 varchar2(20),add2 varchar2(20),city varchar2(20),state varchar2(20),pincode number(6),money number,accnt_status varchar2(7));
