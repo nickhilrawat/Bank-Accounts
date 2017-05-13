@@ -1,43 +1,56 @@
 import cx_Oracle
-import getNum,Menu
+import getNum,Menu,getpass
 
 def sign_up():
-    password=raw_input("Enter the password:")
-    l=len(password)
-    while l > 8:
-        print("Invalid Password:")
-        pas=raw_input("Enter the password:")
+    try:
+        password=getpass.getpass("Enter the password : ")
         l=len(password)
+        while (l<=7):
+            print("Invalid Password : ")
+            password=getpass.getpass("Enter the password : ")
+            l=len(password)
 
-    con=cx_Oracle.connect('Nikhil/nikhil@localhost/xe')
-    cur=con.cursor()
+        con=cx_Oracle.connect('Nikhil/nikhil@localhost/xe')
+        cur=con.cursor()
 
-    typ=raw_input("Enter account type : ")
-    while(typ!='ca' and typ!='CA' and typ!='sb' and typ!='SB'):
-        typ=raw_input("Enter account type : ")
-    fname=raw_input("Enter the Firstname : ")
-    lname=raw_input("Enter the Lastname : ")
-    add1=raw_input("Address Line 1 : ")
-    add2=raw_input("Address Line 2 : ")
-    city=raw_input("City : ")
-    state=raw_input("State : ")
+        typ=raw_input("Enter account type SB/CA : ")
+        while(typ!='ca' and typ!='CA' and typ!='sb' and typ!='SB'):
+            typ=raw_input("Enter account type : ")
+        fname=raw_input("Enter the Firstname : ")
+        lname=raw_input("Enter the Lastname : ")
+        add1=raw_input("Address Line 1 : ")
+        add2=raw_input("Address Line 2 : ")
+        city=raw_input("City : ")
+        state=raw_input("State : ")
+    except cx_Oracle.DatabaseError as e:
+        print("Datebase Error")
+        Main.menu()
     try:
         pincode=input("pincode : ")
-    except NameError:
-        print("Invalid Input")
+    except Exception:
+        print("\nInvalid Pincode!!!\n")
         Menu.main()
-    money=input("Enter the money to be deposited at the start:")
-
+    if(len(str(pincode))!=6):
+        print("\nInvalid pincode !!!\n")
+        Menu.main()
+    try:
+        money=input("Enter the money to be deposited at the start : ")
+        while (money<0):
+            print("\nInvalid amount!!\n")
+            money=input("Enter the money to be deposited at the start : ")
+    except Exception:
+        print("\nInvalid Money!!\n")
+        Menu.main()
     if(typ=='CA' or typ=='ca'):
         if(money<5000):
             while(money<5000):
-                print("You need minimum 5000")
+                print("\nYou need minimum 5000 !!\n")
                 money=input("Enter the money to be deposited at the start : ")
 
     accountNumber=getNum.getNum()
     try:
         cur.execute ("INSERT INTO valid VALUES (:1,:2)",(accountNumber,password))
-        print(accountNumber)
+
         cur.execute("INSERT into detail VALUES(:1,:2,:3,:4,:5,:6,:7,:8,:9,:10,:11)",(accountNumber,typ,fname,lname,add1,add2,city,state,pincode,money,'open'))
         accountNumber=str(accountNumber)
         accountNumber="b_"+accountNumber
@@ -46,5 +59,6 @@ def sign_up():
         con.commit()
         con.close()
     except cx_Oracle.DatabaseError as e:
-        print("DatabaseError")
+        print("DatabaseError 2")
         Menu.main()
+    print(accountNumber)
