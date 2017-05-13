@@ -1,34 +1,57 @@
 import cx_Oracle
-import time
+import time,datetime
 from tabulate import tabulate
 import Menu
 
+
+
+def validate(date_text,accountNumber):
+    try:
+        datetime.datetime.strptime(date_text, '%m/%d/%y')
+    except ValueError:
+        print("Incorrect data format, should be MM-DD-YY")
+        subMenu(accountNumber)
+
+
+
 def address_change(accountNumber):
     print(type(accountNumber))
-    new_addr1=raw_input("Enter the new Address Line 1 : ")
-    new_addr2=raw_input("Enter the new Address Line 2 : ")
-    city=raw_input("Enter city : ")
-    state=raw_input("Enter state : ")
+    try:
+        new_addr1=raw_input("Enter the new Address Line 1 : ")
+        new_addr2=raw_input("Enter the new Address Line 2 : ")
+        city=raw_input("Enter city : ")
+        state=raw_input("Enter state : ")
+    except Exception:
+        print("\nInvalid Address !!\n")
+        subMenu(accountNumber)
     try:
         pin=input("Enter pincode : ")
-    except ValueError:
+    except Exception:
+        print("\nInvalid Pincode !!\n")
         subMenu(accountNumber)
-    con=cx_Oracle.connect('Nikhil/nikhil@localhost/xe')
-    cur=con.cursor()
-    cur.execute("update detail set add1=:1 where accountnumber=:2",(new_addr1,accountNumber))
-    cur.execute("update detail set add2=:1 where accountnumber=:2",(new_addr2,accountNumber))
-    cur.execute("update detail set city=:1 where accountnumber=:2",(city,accountNumber))
-    cur.execute("update detail set state=:1 where accountnumber=:2",(state,accountNumber))
-    cur.execute("update detail set pincode=:1 where accountnumber=:2",(pin,accountNumber))
-    print("Address Changed Successfully")
-    con.commit()
-    con.close()
-    subMenu(accountNumber)
+    try:
+        con=cx_Oracle.connect('Nikhil/nikhil@localhost/xe')
+        cur=con.cursor()
+        cur.execute("update detail set add1=:1 where accountnumber=:2",(new_addr1,accountNumber))
+        cur.execute("update detail set add2=:1 where accountnumber=:2",(new_addr2,accountNumber))
+        cur.execute("update detail set city=:1 where accountnumber=:2",(city,accountNumber))
+        cur.execute("update detail set state=:1 where accountnumber=:2",(state,accountNumber))
+        cur.execute("update detail set pincode=:1 where accountnumber=:2",(pin,accountNumber))
+        print("Address Changed Successfully")
+        con.commit()
+        con.close()
+    except cx_Oracle.DatabaseError as e:
+        print("\nInvalid input !!\n")
+        subMenu(accountNumber)
 
 def money_deposit(accountNumber):
     con=cx_Oracle.connect('Nikhil/nikhil@localhost/xe')
     cur=con.cursor()
-    credit=input("Enter money to deposit")
+    try:
+        credit=input("Enter money to deposit")
+    except Exception:
+        print("Invalid")
+        money_deposit(accountNumber)
     if(credit<0):
         print("Invalid amount")
         money_deposit(accountNumber)
@@ -54,7 +77,11 @@ def money_deposit(accountNumber):
 def money_withdraw(accountNumber):
     con=cx_Oracle.connect('Nikhil/nikhil@localhost/xe')
     cur=con.cursor()
-    debit=input("Enter money to withdraw : ")
+    try:
+        debit=input("Enter money to withdraw : ")
+    except Exception:
+        print("Invalid")
+        money_withdraw(accountNumber)
     cur.execute("select * from detail where ACCOUNTNUMBER = :name",{'name':accountNumber})
     if(not(not(cur.fetchall()))):
         cur.execute("select money from detail where ACCOUNTNUMBER = :name",{'name':accountNumber})
@@ -89,7 +116,9 @@ def print_statement(accountNumber):
     con=cx_Oracle.connect('Nikhil/nikhil@localhost/xe')
     cur=con.cursor()
     start=raw_input("Enter start date (mm/dd/yy) : ")
+    validate(start,accountNumber)
     end=raw_input("Enter the end date (mm/dd/yy) : ")
+    validate(end,accountNumber)
     if(start>=end):
         print("\nDate Error !!\n")
         print_statement(accountNumber);
@@ -133,7 +162,7 @@ def money_transfer(accountNumber):
         account="b_"+account
         date=time.strftime("%x")
         query="Insert into "+ account + " VALUES (:1,:2,:3,:4)"
-        cur.execute(query,(date,'debit',amnt,balance[0][0]))
+        cur.execute(query,(date,'credit',amnt,balance[0][0]))
         print("Balance for "+str(accntNumber)+" is "+(str(balance[0][0])))
         con.commit()
         con.close()
